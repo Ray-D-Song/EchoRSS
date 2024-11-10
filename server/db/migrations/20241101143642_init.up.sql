@@ -37,5 +37,5 @@ CREATE TABLE IF NOT EXISTS items (
     link TEXT NOT NULL,
     description TEXT NOT NULL,
     pub_date TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );

@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/sidebar'
 import { Header } from '../components/header'
 import { Article } from '../components/article'
 import useView from '@/hooks/use-view'
+import useSWR from 'swr'
 
 // Mock data for RSS feeds
 const mockFeeds = [
@@ -27,7 +28,8 @@ const mockArticles = [
 function Homepage() {
   useView()
   const [selectedFeed, setSelectedFeed] = useState(mockFeeds[0])
-
+  const { data } = useSWR('/api/feeds')
+  console.log(data)
 
   return (
     <div className="flex flex-col h-screen">

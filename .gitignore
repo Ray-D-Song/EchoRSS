@@ -25,3 +25,4 @@ dist-ssr
 
 script
 .vscode
+db.sqlite3
