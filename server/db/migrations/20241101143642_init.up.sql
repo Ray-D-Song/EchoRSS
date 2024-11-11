@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS feeds (
     title TEXT NOT NULL,
     link TEXT NOT NULL,
     -- base64 encoded favicon
-    favicon TEXT NOT NULL,
+    favicon TEXT,
     description TEXT NOT NULL,
     last_build_date TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -33,6 +33,7 @@ CREATE INDEX IF NOT EXISTS idx_title ON feeds (title);
 CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     feed_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL,
     title TEXT NOT NULL,
     link TEXT NOT NULL,
     description TEXT NOT NULL,

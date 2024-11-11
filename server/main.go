@@ -43,5 +43,8 @@ func main() {
 	feeds.Get("/", controller.ListFeedsHdl)
 	feeds.Post("/refresh", controller.RefreshFeedsHdl)
 
+	items := api.Group("/items")
+	items.Get("/", controller.GetItemsHdl)
+
 	app.Listen(":8080")
 }

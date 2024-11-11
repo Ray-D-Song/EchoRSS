@@ -10,7 +10,7 @@ type User struct {
 	Username  string `json:"username" db:"username"`
 	Password  string `json:"password" db:"password"`
 	Role      string `json:"role" db:"role"`
-	CreatedAt string `json:"created_at" db:"created_at"`
+	CreatedAt string `json:"createdAt" db:"created_at"`
 }
 
 func NewUser() *User {

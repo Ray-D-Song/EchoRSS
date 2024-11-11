@@ -1,35 +1,29 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sidebar } from '@/components/sidebar'
 import { Header } from '../components/header'
-import { Article } from '../components/article'
+import Article from '../components/article'
 import useView from '@/hooks/use-view'
-import useSWR from 'swr'
-
-// Mock data for RSS feeds
-const mockFeeds = [
-  { id: 1, name: 'Tech News', url: 'https://technews.com/rss' },
-  { id: 2, name: 'World News', url: 'https://worldnews.com/rss' },
-  { id: 3, name: 'Sports', url: 'https://sports.com/rss' },
-  { id: 4, name: 'Science', url: 'https://science.com/rss' },
-  { id: 5, name: 'Entertainment', url: 'https://entertainment.com/rss' },
-]
-
-// Mock data for articles
-const mockArticles = [
-  { id: 1, title: 'Latest Tech Innovations', summary: 'Exploring cutting-edge technologies shaping our future.', date: '2023-05-15' },
-  { id: 2, title: 'Global Economic Trends', summary: 'Analysis of current economic patterns worldwide.', date: '2023-05-14' },
-  { id: 3, title: 'Breakthrough in Quantum Computing', summary: 'Scientists achieve major milestone in quantum research.', date: '2023-05-13' },
-  { id: 4, title: 'New Species Discovered', summary: 'Researchers find previously unknown species in the Amazon.', date: '2023-05-12' },
-  { id: 5, title: 'Advancements in Renewable Energy', summary: 'Latest developments in sustainable power generation.', date: '2023-05-11' },
-]
+import useFetch from '@/hooks/use-fetch'
 
 function Homepage() {
   useView()
-  const [selectedFeed, setSelectedFeed] = useState(mockFeeds[0])
-  const { data } = useSWR('/api/feeds')
-  console.log(data)
+  const [selectedFeed, setSelectedFeed] = useState<Feed | null>(null)
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
+  const { data: articles, run: refreshItems } = useFetch<Article[]>(`/items?feedId=${selectedFeed?.id}`, {}, {
+    immediate: false,
+    onSuccess: (data) => {
+      if (data.length > 0) {
+        setSelectedArticle(data[0])
+      }
+    }
+  })
+  useEffect(() => {
+    if (selectedFeed) {
+      refreshItems()
+    }
+  }, [selectedFeed])
 
   return (
     <div className="flex flex-col h-screen">
@@ -37,25 +31,29 @@ function Homepage() {
       <main className="flex flex-1 overflow-hidden">
         <Sidebar selectedFeed={selectedFeed} setSelectedFeed={setSelectedFeed} />
         <section className="flex-1 p-6 overflow-y-auto max-w-sm border-r">
-          <h2 className="text-2xl font-bold mb-6">{selectedFeed.name}</h2>
+          <h2 className="text-2xl font-bold mb-6">{selectedFeed?.title}</h2>
           <ScrollArea className="h-[calc(100vh-12rem)]">
             <div className="space-y-4">
-              {mockArticles.map((article) => (
-                <Card key={article.id}>
+              {articles?.map((article) => (
+                <Card key={article.id} onClick={() => setSelectedArticle(article)}>
                   <CardHeader>
-                    <CardTitle>{article.title}</CardTitle>
-                    <CardDescription>{article.date}</CardDescription>
+                    <CardTitle className="text-lg font-semibold leading-6">{article.title}</CardTitle>
+                    <CardDescription>{article.pubDate}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p>{article.summary}</p>
-                  </CardContent>
+                  {
+                    article.description.length > 0 && (
+                      <CardContent>
+                        <div dangerouslySetInnerHTML={{ __html: article.description.slice(0, 110) + '...' }} />
+                      </CardContent>
+                    )
+                  }
                 </Card>
               ))}
             </div>
           </ScrollArea>
         </section>
         <section className="flex-1 p-6 overflow-y-auto">
-          <Article />
+          {selectedArticle && <Article {...selectedArticle} />}
         </section>
       </main>
     </div>

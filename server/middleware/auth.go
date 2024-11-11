@@ -36,7 +36,7 @@ func AuthMdl(c *fiber.Ctx) error {
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if userID, ok := claims["user_id"].(string); ok && userID != "" {
-			c.Set("user", userID)
+			c.Locals("user", userID)
 		} else {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
 		}

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -10,8 +11,8 @@ import (
 )
 
 type TokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 var SecretKey = os.Getenv("JWT_SECRET_KEY")
@@ -67,46 +68,49 @@ func GenerateTokenPair(userID string) (*TokenResponse, error) {
 
 func RefreshToken(c *fiber.Ctx, refreshToken string) error {
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return []byte(RefreshKey), nil
 	})
 
-	if err != nil || !token.Valid {
+	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Invalid refresh token",
 		})
 	}
 
-	var raw string
-	userID := token.Claims.(jwt.MapClaims)["user_id"].(string)
-	err = db.Bind.Get(&raw, `
-		SELECT refresh_token FROM users WHERE id = :user_id
-	`, map[string]interface{}{
-		"user_id": userID,
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if userID, ok := claims["user_id"].(string); ok && userID != "" {
+			var raw string
+			err = db.Bind.Get(&raw, `
+				SELECT refresh_token FROM users WHERE id = :user_id
+			`, map[string]interface{}{
+				"user_id": userID,
+			})
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": "Invalid refresh token",
+				})
+			}
+			if raw != refreshToken {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": "Invalid refresh token",
+				})
+			}
+
+			newTokens, err := GenerateTokenPair(userID)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"error": "Generate token failed",
+				})
+			}
+
+			return c.JSON(newTokens)
+		}
+	}
+
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		"error": "Invalid refresh token",
 	})
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "User not found",
-		})
-	}
-	if raw != refreshToken {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid refresh token",
-		})
-	}
-
-	newTokens, err := GenerateTokenPair(userID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Generate token failed",
-		})
-	}
-
-	db.Bind.NamedExec(`
-		UPDATE users SET refresh_token = :refresh_token WHERE id = :user_id
-	`, map[string]interface{}{
-		"refresh_token": newTokens.RefreshToken,
-		"user_id":       userID,
-	})
-
-	return c.JSON(newTokens)
 }

@@ -25,7 +25,13 @@ async function fetcher<T>(url: string, options?: RequestInit) {
             })
           })
           if (refreshTokenRes.ok) {
-            localStorage.setItem('user', JSON.stringify(await refreshTokenRes.json()))
+            const userStr = localStorage.getItem('user')
+            if (!userStr) return logout()
+            localStorage.setItem('user', JSON.stringify({
+              ...JSON.parse(userStr),
+              ...(await refreshTokenRes.json())
+            }))
+            return await fetcher(url, options)
           } else logout()
         }
         break

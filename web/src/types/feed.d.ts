@@ -2,26 +2,11 @@
  * type of items rendered in the sidebar
  */
 interface Feed {
-  id: number
+  id: string
   title: string
-
-  /**
-   * url of the feed
-   */
-  url: string
-
-  /**
-   * base64 encoded favicon
-   */
+  link: string
   favicon: string
-
-  /**
-   * number of new articles
-   */
-  new: number
-
-  /**
-   * number of unread articles
-   */
-  unread: number
+  description: string
+  lastBuildDate: string
+  createdAt: string
 }

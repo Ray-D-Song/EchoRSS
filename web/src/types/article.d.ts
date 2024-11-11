@@ -2,7 +2,9 @@
  * type of items rendered in the article card
  */
 interface Article {
+  id: string
   title: string
+  content: string
   description: string
   link: string
   pubDate: string
@@ -11,11 +13,6 @@ interface Article {
    * whether the article has been read
    */
   read: boolean
-
-  /**
-   * whether the article has been archived locally
-   */
-  archived: boolean
 
   /**
    * @todo whether the article has been favorited locally
