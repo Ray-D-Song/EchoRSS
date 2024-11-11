@@ -6,11 +6,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"ray-d-song.com/echo-rss/controller"
 	"ray-d-song.com/echo-rss/db"
+	"ray-d-song.com/echo-rss/middleware"
 	"ray-d-song.com/echo-rss/model"
 
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
 
-	jwtware "github.com/gofiber/contrib/jwt"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -31,25 +31,17 @@ func main() {
 	}
 
 	app := fiber.New()
+	app.Use(middleware.AuthMdl)
 	api := app.Group("/api")
 
 	auth := api.Group("/auth")
 	auth.Post("/login", controller.Login)
 	auth.Post("/refresh-token", controller.RefreshToken)
 
-	api.Use(jwtware.New(jwtware.Config{
-		Filter: func(c *fiber.Ctx) bool {
-			return c.Path() == "/api/auth/login" || c.Path() == "/api/auth/refresh-token"
-		},
-		SigningKey:   jwtware.SigningKey{Key: []byte(model.SecretKey)},
-		ErrorHandler: jwtError,
-	}))
+	feeds := api.Group("/feeds")
+	feeds.Post("/", controller.CreateFeedHdl)
+	feeds.Get("/", controller.ListFeedsHdl)
+	feeds.Post("/refresh", controller.RefreshFeedsHdl)
 
 	app.Listen(":8080")
-}
-
-func jwtError(c *fiber.Ctx, err error) error {
-	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-		"error": "Unauthorized",
-	})
 }

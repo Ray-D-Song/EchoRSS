@@ -5,12 +5,14 @@ import (
 )
 
 type Feed struct {
-	ID        string `json:"id" db:"id"`
-	UserID    string `json:"user_id" db:"user_id"`
-	Title     string `json:"title" db:"title"`
-	Link      string `json:"link" db:"link"`
-	Favicon   string `json:"favicon" db:"favicon"`
-	CreatedAt string `json:"created_at" db:"created_at"`
+	ID            string `json:"id" db:"id"`
+	UserID        string `json:"user_id" db:"user_id"`
+	Title         string `json:"title" db:"title"`
+	Link          string `json:"link" db:"link"`
+	Favicon       string `json:"favicon" db:"favicon"`
+	Description   string `json:"description" db:"description"`
+	LastBuildDate string `json:"last_build_date" db:"last_build_date"`
+	CreatedAt     string `json:"created_at" db:"created_at"`
 }
 
 func (f *Feed) List(userID string) ([]Feed, error) {
@@ -20,6 +22,6 @@ func (f *Feed) List(userID string) ([]Feed, error) {
 }
 
 func (f *Feed) Create() error {
-	_, err := db.Bind.NamedExec("INSERT INTO feeds (user_id, title, link, favicon) VALUES (:user_id, :title, :link, :favicon)", f)
+	_, err := db.Bind.NamedExec("INSERT INTO feeds (user_id, title, link, favicon, description, last_build_date) VALUES (:user_id, :title, :link, :favicon, :description, :last_build_date)", f)
 	return err
 }

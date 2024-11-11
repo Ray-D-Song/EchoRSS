@@ -21,10 +21,15 @@ export function Sidebar({ selectedFeed, setSelectedFeed }: { selectedFeed: Feed,
 
   const [newFeed, setNewFeed] = useState('')
   const [open, setOpen] = useState(false)
+  const { data: feeds, loading: loadingFeeds, run: refreshFeeds } = useFetch<Feed[]>('/feeds', {}, {
+    immediate: true
+  })
   const { data, loading, run } = useFetch<Feed[]>('/feeds', 
   {
     method: 'POST',
-    body: newFeed
+      body: JSON.stringify({
+        url: newFeed
+      })
     },
     {
       onFinally: () => {
