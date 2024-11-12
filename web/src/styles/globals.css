@@ -67,3 +67,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+.prose figure {
+  margin: 0;
+  max-width: 100% !important;
+}
+
+.prose figure img {
+  max-width: 100% !important;
+  height: auto;
+}

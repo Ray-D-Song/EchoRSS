@@ -4,9 +4,15 @@ interface AuthForm {
 }
 
 interface User {
-  id: number
   role: string
   token: string
   refreshToken: string
   username: string
+}
+
+interface UserListItem {
+  id: string
+  username: string
+  password: string
+  deleted: 0 | 1
 }

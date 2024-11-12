@@ -1,7 +1,7 @@
-import { AppCtx } from '@/lib/ctx';
-import { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useMedia } from 'react-use';
+import { AppCtx } from '@/lib/ctx'
+import { useContext } from 'react'
+import { Navigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 
 function Index() {
   const { user } = useContext(AppCtx)

@@ -84,7 +84,7 @@ func RefreshToken(c *fiber.Ctx, refreshToken string) error {
 		if userID, ok := claims["user_id"].(string); ok && userID != "" {
 			var raw string
 			err = db.Bind.Get(&raw, `
-				SELECT refresh_token FROM users WHERE id = :user_id
+				SELECT refresh_token FROM users WHERE id = :user_id AND deleted = 0
 			`, map[string]interface{}{
 				"user_id": userID,
 			})

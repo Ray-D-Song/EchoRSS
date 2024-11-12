@@ -21,7 +21,7 @@ async function fetcher<T>(url: string, options?: RequestInit) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              token: JSON.parse(localStorage.getItem('user') ?? '{}')?.refreshToken
+              refreshToken: JSON.parse(localStorage.getItem('user') ?? '{}')?.refreshToken
             })
           })
           if (refreshTokenRes.ok) {
@@ -40,7 +40,13 @@ async function fetcher<T>(url: string, options?: RequestInit) {
     }
     return null
   }
-  return await res.json() as T
+  if (res.headers.get('Content-Type') === 'text/html') {
+    return await res.text() as T
+  }
+  if (res.headers.get('Content-Type') === 'application/json') {
+    return await res.json() as T
+  }
+  return await res.text() as T
 }
 
 function logout() {

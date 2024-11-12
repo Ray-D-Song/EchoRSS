@@ -12,15 +12,15 @@ var Bind *sqlx.DB
 var dbPath string
 
 func init() {
-	// check if './db.sqlite3' exists
-	if _, err := os.Stat("./db.sqlite3"); os.IsNotExist(err) {
+	// check if './resources/db.sqlite3' exists
+	if _, err := os.Stat("./resources/db.sqlite3"); os.IsNotExist(err) {
 		// create db.sqlite3
-		_, err := os.Create("./db.sqlite3")
+		_, err := os.Create("./resources/db.sqlite3")
 		if err != nil {
 			panic(err)
 		}
 	}
-	dbPath = "./db.sqlite3"
+	dbPath = "./resources/db.sqlite3"
 	var err error
 	Bind, err = sqlx.Open("sqlite3", dbPath)
 	if err != nil {

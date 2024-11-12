@@ -32,11 +32,18 @@ func main() {
 
 	app := fiber.New()
 	app.Use(middleware.AuthMdl)
+	app.Use(middleware.LoggerMiddleware())
 	api := app.Group("/api")
 
 	auth := api.Group("/auth")
 	auth.Post("/login", controller.Login)
 	auth.Post("/refresh-token", controller.RefreshToken)
+
+	users := api.Group("/users")
+	users.Get("/", controller.ListUsersHdl)
+	users.Post("/", controller.CreateUserHdl)
+	users.Delete("/", controller.DeleteUserHdl)
+	users.Put("/restore", controller.RestoreUserHdl)
 
 	feeds := api.Group("/feeds")
 	feeds.Post("/", controller.CreateFeedHdl)
@@ -45,6 +52,10 @@ func main() {
 
 	items := api.Group("/items")
 	items.Get("/", controller.GetItemsHdl)
+	items.Put("/read", controller.SetItemReadHdl)
+
+	tools := api.Group("/tools")
+	tools.Get("/fetch-remote-content", controller.FetchRemoteContent)
 
 	app.Listen(":8080")
 }

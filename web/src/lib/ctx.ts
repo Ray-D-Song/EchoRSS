@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext } from 'react'
 
 export const AppCtx = createContext<{
   user: User | null

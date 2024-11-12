@@ -1,5 +1,5 @@
-import fetcher from '@/lib/fetcher';
-import { useEffect, useState } from 'react';
+import fetcher from '@/lib/fetcher'
+import { useEffect, useState } from 'react'
 
 function useFetch<T>(url: string, reqOptions: RequestInit, hookOptions: {
   onSuccess?: (data: T) => void
@@ -12,7 +12,7 @@ function useFetch<T>(url: string, reqOptions: RequestInit, hookOptions: {
   const [reqTr, setReqTr] = useState(0)
 
   useEffect(() => {
-    if (!hookOptions.immediate && reqTr === 0) return;
+    if (!hookOptions.immediate && reqTr === 0) return
     setLoading(true)
     fetcher<T>(url, reqOptions)
       .then(data => {
@@ -37,7 +37,7 @@ function useFetch<T>(url: string, reqOptions: RequestInit, hookOptions: {
     setReqTr(prev => prev + 1)
   }
 
-  return { data, loading, run }
+  return { data, loading, run, setData }
 }
 
 export default useFetch

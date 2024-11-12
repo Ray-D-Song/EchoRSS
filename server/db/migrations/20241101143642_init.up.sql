@@ -7,11 +7,27 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     refresh_token TEXT,
-    banned INTEGER NOT NULL DEFAULT 0,
-    banned_at TEXT
+    -- soft delete
+    deleted INTEGER NOT NULL DEFAULT 0,
+    deleted_at TEXT
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON users (username);
+
+-- delete trigger
+CREATE TRIGGER IF NOT EXISTS update_deleted_at
+    AFTER UPDATE ON users
+    WHEN NEW.deleted == 1
+BEGIN
+    UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+-- update trigger for updated_at
+CREATE TRIGGER IF NOT EXISTS update_updated_at
+    AFTER UPDATE ON users
+BEGIN
+    UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
 
 -- create feeds table
 CREATE TABLE IF NOT EXISTS feeds (
@@ -22,6 +38,7 @@ CREATE TABLE IF NOT EXISTS feeds (
     -- base64 encoded favicon
     favicon TEXT,
     description TEXT NOT NULL,
+    -- feed last build(updated) date
     last_build_date TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
@@ -36,8 +53,12 @@ CREATE TABLE IF NOT EXISTS items (
     user_id TEXT NOT NULL,
     title TEXT NOT NULL,
     link TEXT NOT NULL,
+    -- some feeds use description as content
     description TEXT NOT NULL,
     content TEXT NOT NULL,
+    -- 0: unread, 1: read
+    read INTEGER NOT NULL DEFAULT 0,
+    -- item pub date
     pub_date TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );

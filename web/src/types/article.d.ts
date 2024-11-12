@@ -12,7 +12,7 @@ interface Article {
   /**
    * whether the article has been read
    */
-  read: boolean
+  read: 0 | 1
 
   /**
    * @todo whether the article has been favorited locally

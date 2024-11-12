@@ -12,6 +12,7 @@ type Item struct {
 	Link        string `json:"link" db:"link"`
 	Description string `json:"description" db:"description"`
 	Content     string `json:"content" db:"content"`
+	Read        int    `json:"read" db:"read"`
 	PubDate     string `json:"pubDate" db:"pub_date"`
 	CreatedAt   string `json:"createdAt" db:"created_at"`
 }
@@ -31,4 +32,9 @@ func GetItems(userID, feedID string) ([]Item, error) {
 	var items []Item
 	err := db.Bind.Select(&items, "SELECT * FROM items WHERE feed_id = ? AND user_id = ?", feedID, userID)
 	return items, err
+}
+
+func SetItemRead(userID, itemID string) error {
+	_, err := db.Bind.Exec("UPDATE items SET read = 1 WHERE id = ? AND user_id = ?", itemID, userID)
+	return err
 }

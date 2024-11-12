@@ -11,7 +11,7 @@ function Homepage() {
   useView()
   const [selectedFeed, setSelectedFeed] = useState<Feed | null>(null)
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
-  const { data: articles, run: refreshItems } = useFetch<Article[]>(`/items?feedId=${selectedFeed?.id}`, {}, {
+  const { data: articles, run: refreshItems, setData: setArticles } = useFetch<Article[]>(`/items?feedId=${selectedFeed?.id}`, {}, {
     immediate: false,
     onSuccess: (data) => {
       if (data.length > 0) {
@@ -19,11 +19,16 @@ function Homepage() {
       }
     }
   })
+
   useEffect(() => {
     if (selectedFeed) {
       refreshItems()
     }
   }, [selectedFeed])
+
+  function updateArticles(article: Article) {
+    setArticles(articles => articles?.map(a => a.id === article.id ? article : a) ?? [])
+  }
 
   return (
     <div className="flex flex-col h-screen">
@@ -35,7 +40,7 @@ function Homepage() {
           <ScrollArea className="h-[calc(100vh-12rem)]">
             <div className="space-y-4">
               {articles?.map((article) => (
-                <Card key={article.id} onClick={() => setSelectedArticle(article)}>
+                <Card key={article.id} onClick={() => setSelectedArticle(article)} className={`${article.read ? 'opacity-60' : ''}`}>
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold leading-6">{article.title}</CardTitle>
                     <CardDescription>{article.pubDate}</CardDescription>
@@ -53,7 +58,7 @@ function Homepage() {
           </ScrollArea>
         </section>
         <section className="flex-1 p-6 overflow-y-auto">
-          {selectedArticle && <Article {...selectedArticle} />}
+          {selectedArticle && <Article article={selectedArticle} updateArticle={updateArticles} />}
         </section>
       </main>
     </div>
