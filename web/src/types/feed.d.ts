@@ -9,4 +9,5 @@ interface Feed {
   description: string
   lastBuildDate: string
   createdAt: string
+  unreadCount: number
 }

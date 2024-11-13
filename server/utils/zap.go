@@ -10,10 +10,7 @@ import (
 
 var Logger, _ = zap.NewProduction()
 
-func init() {
-	if err := EnsureDir(); err != nil {
-		panic(err)
-	}
+func InitLogger() {
 	config := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",

@@ -62,6 +62,7 @@ export function Sidebar({ selectedFeed, setSelectedFeed }: { selectedFeed: Feed 
                 <Rss className="mr-2 h-4 w-4" />
               }
               {feed.title}
+              {feed.unreadCount > 0 && <span className="text-xs text-gray-500 ml-auto">({feed.unreadCount})</span>}
             </Button>
           </li>
         ))}

@@ -8,11 +8,20 @@ import (
 	"ray-d-song.com/echo-rss/db"
 	"ray-d-song.com/echo-rss/middleware"
 	"ray-d-song.com/echo-rss/model"
+	"ray-d-song.com/echo-rss/utils"
 
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
+
+func init() {
+	err := utils.EnsureDir()
+	if err != nil {
+		panic(err)
+	}
+	utils.InitLogger()
+}
 
 func main() {
 	err := db.Migrate()

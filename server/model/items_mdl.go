@@ -17,6 +17,16 @@ type Item struct {
 	CreatedAt   string `json:"createdAt" db:"created_at"`
 }
 
+func (i *Item) CountUnread(feedID string) (int, error) {
+	var count int
+	err := db.Bind.Get(&count, "SELECT COUNT(*) FROM items WHERE feed_id = ? AND read = 0", feedID)
+	if err == nil {
+		// update unread count
+		db.Bind.Exec("UPDATE feeds SET unread_count = ? WHERE id = ?", count, feedID)
+	}
+	return count, err
+}
+
 func (i *Item) Exists(feedID, link, userID string) (bool, error) {
 	var count int
 	err := db.Bind.Get(&count, "SELECT COUNT(*) FROM items WHERE feed_id = ? AND link = ? AND user_id = ?", feedID, link, userID)
@@ -35,6 +45,26 @@ func GetItems(userID, feedID string) ([]Item, error) {
 }
 
 func SetItemRead(userID, itemID string) error {
-	_, err := db.Bind.Exec("UPDATE items SET read = 1 WHERE id = ? AND user_id = ?", itemID, userID)
-	return err
+	tx, err := db.Bind.Beginx()
+	if err != nil {
+		return err
+	}
+	var feedID string
+	err = tx.Get(&feedID, "SELECT feed_id FROM items WHERE id = ? AND user_id = ?", itemID, userID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("UPDATE items SET read = 1 WHERE id = ? AND user_id = ?", itemID, userID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("UPDATE feeds SET unread_count = unread_count - 1 WHERE id = ?", feedID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }

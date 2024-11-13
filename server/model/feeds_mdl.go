@@ -13,11 +13,21 @@ type Feed struct {
 	Description   string `json:"description" db:"description"`
 	LastBuildDate string `json:"lastBuildDate" db:"last_build_date"`
 	CreatedAt     string `json:"createdAt" db:"created_at"`
+	UnreadCount   int    `json:"unreadCount" db:"unread_count"`
+	RecentUpdate  int    `json:"recentUpdate" db:"recent_update"`
 }
 
 func (f *Feed) List(userID string) ([]Feed, error) {
 	feeds := []Feed{}
 	db.Bind.Select(&feeds, "SELECT id, title, link, favicon, description, last_build_date, created_at FROM feeds WHERE user_id = ?", userID)
+	for i := range feeds {
+		unreadCount, err := (&Item{}).CountUnread(feeds[i].ID)
+		if err != nil {
+			feeds[i].UnreadCount = 0
+		} else {
+			feeds[i].UnreadCount = unreadCount
+		}
+	}
 	return feeds, nil
 }
 
