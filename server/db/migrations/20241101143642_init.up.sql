@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS feeds (
     description TEXT NOT NULL,
     -- feed last build(updated) date
     last_build_date TEXT NOT NULL,
+    category_id INTEGER,
     created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
@@ -60,5 +61,13 @@ CREATE TABLE IF NOT EXISTS items (
     read INTEGER NOT NULL DEFAULT 0,
     -- item pub date
     pub_date TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+-- create categories table
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    name TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
