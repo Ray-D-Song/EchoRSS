@@ -10,7 +10,7 @@ interface ArticleProps {
 }
 
 function Article({ article, updateArticle }: ArticleProps) {
-  const [remoteContent, setRemoteContent] = useState<ReturnType<Readability<string>['parse']> | null>(null)
+  const [remoteContent, setRemoteContent] = useState<TrustedHTML | null>(null)
   const [drawerVisible, setDrawerVisible] = useState(false)
   useEffect(() => {
     if (article.read === 0) {
@@ -37,9 +37,10 @@ function Article({ article, updateArticle }: ArticleProps) {
           window.open(link.href, '_blank')
         }
         const doc = new DOMParser().parseFromString(resDoc ?? '', 'text/html')
-        htmlRewriter(new URL(article.link).origin, doc.documentElement)
-        const docContent = new Readability(doc).parse()
-        setRemoteContent(docContent)
+        const docContent = new Readability(doc).parse()?.content
+        const docContentHtml = new DOMParser().parseFromString(docContent ?? '', 'text/html')
+        await htmlRewriter(new URL(article.link).origin, docContentHtml.documentElement)
+        setRemoteContent(docContentHtml.documentElement.innerHTML)
         setDrawerVisible(true)
       }
     }
@@ -62,10 +63,10 @@ function Article({ article, updateArticle }: ArticleProps) {
       <DrawerContent>
         <div className='max-h-[90vh] overflow-y-scroll'>
           <DrawerHeader>
-            <DrawerTitle>{remoteContent?.title}</DrawerTitle>
+            <DrawerTitle></DrawerTitle>
           </DrawerHeader>
           <div className='items-center flex justify-center'>
-            <section className='prose dark:prose-invert' dangerouslySetInnerHTML={{ __html: remoteContent?.content ?? '' }} />
+            <section className='prose dark:prose-invert' dangerouslySetInnerHTML={{ __html: remoteContent ?? '' }} />
           </div>
         </div>
       </DrawerContent>
