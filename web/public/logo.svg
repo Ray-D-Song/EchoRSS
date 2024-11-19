@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1080" height="1080" viewBox="0 0 1080 1080" xml:space="preserve">
+<desc>Created with Fabric.js 5.2.4</desc>
+<defs>
+</defs>
+<g transform="matrix(1 0 0 1 540 540)" id="55e2fb6a-c264-46dc-8992-3cbadc7b536c"  >
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1; visibility: hidden;" vector-effect="non-scaling-stroke"  x="-540" y="-540" rx="0" ry="0" width="1080" height="1080" />
+</g>
+<g transform="matrix(1 0 0 1 540 540)" id="b1a37ccd-dd07-41fe-a379-04a7027929da"  >
+</g>
+<g transform="matrix(NaN NaN NaN NaN 0 0)"  >
+<g style=""   >
+</g>
+</g>
+<g transform="matrix(NaN NaN NaN NaN 0 0)"  >
+<g style=""   >
+</g>
+</g>
+<g transform="matrix(NaN NaN NaN NaN 0 0)"  >
+<g style=""   >
+</g>
+</g>
+<g transform="matrix(8.8 0 0 8.8 540 540)" id="95153123-e8be-4c67-b8c7-6f9f23dcc27a"  >
+<rect style="stroke: rgb(0,0,0); stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(43,43,43); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  x="-33.0835" y="-33.0835" rx="0" ry="0" width="66.167" height="66.167" />
+</g>
+<g transform="matrix(NaN NaN NaN NaN 0 0)"  >
+<g style=""   >
+</g>
+</g>
+<g transform="matrix(NaN NaN NaN NaN 0 0)"  >
+<g style=""   >
+</g>
+</g>
+<g transform="matrix(45 0 0 45 540 540)"  >
+<path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(250,204,20); fill-rule: nonzero; opacity: 1;"  transform=" translate(-12, -12)" d="M 5 3 L 19 3 C 20.104569499661586 3 21 3.8954305003384126 21 5 L 21 19 C 21 20.104569499661586 20.104569499661586 21 19 21 L 5 21 C 3.895430500338413 21 3 20.104569499661586 3 19 L 3 5 C 3 3.895430500338413 3.895430500338413 3 5 3 M 7.5 15 C 6.67157287525381 15 6 15.67157287525381 6 16.5 C 6 17.32842712474619 6.67157287525381 18 7.5 18 C 8.32842712474619 18 9 17.32842712474619 9 16.5 C 9 15.67157287525381 8.32842712474619 15 7.5 15 M 6 10 L 6 12 C 9.313708498984761 12 12 14.686291501015237 12 18 L 14 18 C 14 13.581722001353652 10.418277998646348 10 6 10 M 6 6 L 6 8 C 11.522847498307934 8 15.999999999999998 12.477152501692064 16 18 L 18 18 C 18 11.372583002030478 12.627416997969522 6 6 6" stroke-linecap="round" />
+</g>
+</svg>
