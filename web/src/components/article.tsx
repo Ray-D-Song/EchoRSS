@@ -12,6 +12,16 @@ interface ArticleProps {
 function Article({ article, updateArticle }: ArticleProps) {
   const [remoteContent, setRemoteContent] = useState<TrustedHTML | null>(null)
   const [drawerVisible, setDrawerVisible] = useState(false)
+
+  const [beautifiedContent, setBeautifiedContent] = useState<TrustedHTML | null>(null)
+  useEffect(() => {
+    const contentNeedBeautify = article.content.length > 0 ? article.content : article.description
+    const docContentHtml = new DOMParser().parseFromString(contentNeedBeautify, 'text/html')
+    htmlRewriter(new URL(article.link).origin, docContentHtml.documentElement).then(() => {
+      setBeautifiedContent(docContentHtml.documentElement.innerHTML)
+    })
+  }, [article.content, article.description])
+
   useEffect(() => {
     if (article.read === 0) {
       fetcher(`/items/read?itemId=${article.id}`, {
@@ -58,7 +68,7 @@ function Article({ article, updateArticle }: ArticleProps) {
   }, [article.read])
 
   return <div className='prose dark:prose-invert'>
-    <section dangerouslySetInnerHTML={{ __html: article.content.length > 0 ? article.content : article.description }} />
+    <section dangerouslySetInnerHTML={{ __html: beautifiedContent ?? '' }} />
     <Drawer open={drawerVisible} onOpenChange={setDrawerVisible}>
       <DrawerContent>
         <div className='max-h-[90vh] overflow-y-scroll'>

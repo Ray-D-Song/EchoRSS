@@ -1,4 +1,5 @@
-import { codeToHtml } from 'shiki/bundle/web'
+import { codeToHtml } from 'shiki'
+import langDetect from './langdetect'
 
 async function rewriteLinks(origin: string, container: HTMLElement): Promise<void> {
   return new Promise((resolve) => {
@@ -42,23 +43,31 @@ async function rewriteImages(origin: string, container: HTMLElement): Promise<vo
 
 async function rewriteCode(container: HTMLElement): Promise<void> {
   const promises = Array.from(container.querySelectorAll('pre code')).map(async code => {
-    const divs = code.querySelectorAll('div');
-    const content = Array.from(divs)
-      .map(div => div.textContent || '')
-      .join('\n');
-    
-    const html = await codeToHtml(content, { 
-      lang: 'typescript',
-      theme: 'nord'
-    })
-    
-    const pre = code.parentElement
-    if (pre) {
-      pre.innerHTML = html
-      console.log(html)
+    const classList = code.parentElement?.classList.toString()
+    // code language
+    let lang: string = ''
+    // hljs, highlight xxx
+    if (classList?.includes('highlight')) {
+      lang = classList.split(' ')[1]
     }
+    // prism, language-xxx
+    if (classList?.includes('language-')) {
+      lang = classList.split(' ').find(item => item.startsWith('language-'))?.replace('language-', '') || ''
+    }
+
+    if (lang.length === 0) {
+      // no language specified, detect by content
+      const content = code.textContent || ''
+      lang = await langDetect(content)
+    }
+
+    if (lang.length === 0) {
+      lang = 'text'
+    }
+
+    code.classList.add(`language-${lang}`)
   })
-  
+
   return Promise.all(promises).then(() => {})
 }
 
