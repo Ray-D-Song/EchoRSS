@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { Readability } from '@mozilla/readability'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from './ui/drawer'
 import htmlRewriter from '@/lib/htmlrewriter'
+import Markdown from 'react-markdown'
+import turndownService from '@/lib/turndown'
 
 interface ArticleProps {
   article: Article
@@ -10,15 +12,15 @@ interface ArticleProps {
 }
 
 function Article({ article, updateArticle }: ArticleProps) {
-  const [remoteContent, setRemoteContent] = useState<TrustedHTML | null>(null)
+  const [remoteContent, setRemoteContent] = useState<string | null>(null)
   const [drawerVisible, setDrawerVisible] = useState(false)
 
-  const [beautifiedContent, setBeautifiedContent] = useState<TrustedHTML | null>(null)
+  const [beautifiedContent, setBeautifiedContent] = useState<string | null>(null)
   useEffect(() => {
     const contentNeedBeautify = article.content.length > 0 ? article.content : article.description
     const docContentHtml = new DOMParser().parseFromString(contentNeedBeautify, 'text/html')
     htmlRewriter(new URL(article.link).origin, docContentHtml.documentElement).then(() => {
-      setBeautifiedContent(docContentHtml.documentElement.innerHTML)
+      setBeautifiedContent(turndownService.turndown(docContentHtml.documentElement.innerHTML))
     })
   }, [article.content, article.description])
 
@@ -50,7 +52,7 @@ function Article({ article, updateArticle }: ArticleProps) {
         const docContent = new Readability(doc).parse()?.content
         const docContentHtml = new DOMParser().parseFromString(docContent ?? '', 'text/html')
         await htmlRewriter(new URL(article.link).origin, docContentHtml.documentElement)
-        setRemoteContent(docContentHtml.documentElement.innerHTML)
+        setRemoteContent(turndownService.turndown(docContentHtml.documentElement.innerHTML))
         setDrawerVisible(true)
       }
     }
@@ -68,7 +70,9 @@ function Article({ article, updateArticle }: ArticleProps) {
   }, [article.read])
 
   return <div className='prose dark:prose-invert'>
-    <section dangerouslySetInnerHTML={{ __html: beautifiedContent ?? '' }} />
+    <section>
+      <Markdown>{beautifiedContent}</Markdown>
+    </section>
     <Drawer open={drawerVisible} onOpenChange={setDrawerVisible}>
       <DrawerContent>
         <div className='max-h-[90vh] overflow-y-scroll'>
@@ -76,7 +80,9 @@ function Article({ article, updateArticle }: ArticleProps) {
             <DrawerTitle></DrawerTitle>
           </DrawerHeader>
           <div className='items-center flex justify-center'>
-            <section className='prose dark:prose-invert' dangerouslySetInnerHTML={{ __html: remoteContent ?? '' }} />
+            <section className='prose dark:prose-invert'>
+              <Markdown>{remoteContent}</Markdown>
+            </section>
           </div>
         </div>
       </DrawerContent>

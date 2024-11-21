@@ -1,10 +1,9 @@
-// @ts-expect-error
-const guessLang = new GuessLang()
+import { GuessLangWorker } from '@ray-d-song/guesslang-js/worker'
+
+const guessLang = new GuessLangWorker()
 
 async function langDetect(content: string) {
-  console.log(content)
   const result = await guessLang.runModel(content)
-  console.log(result)
   return result[0].languageId
 }
 

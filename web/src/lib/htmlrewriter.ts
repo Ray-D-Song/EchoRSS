@@ -1,4 +1,3 @@
-import { codeToHtml } from 'shiki'
 import langDetect from './langdetect'
 
 async function rewriteLinks(origin: string, container: HTMLElement): Promise<void> {
