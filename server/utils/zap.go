@@ -47,3 +47,7 @@ func LogError(msg string) fiber.Map {
 	Logger.Error(msg)
 	return fiber.Map{"error": msg}
 }
+
+type ErrRes struct {
+	Error string `json:"error"`
+}

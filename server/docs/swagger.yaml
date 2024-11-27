@@ -1,0 +1,63 @@
+basePath: /api
+definitions:
+  controller.LoginForm:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  controller.LoginRes:
+    properties:
+      id:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  utils.ErrRes:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Echo RSS API
+  title: Echo RSS API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: loginForm
+        required: true
+        schema:
+          $ref: '#/definitions/controller.LoginForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.LoginRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrRes'
+      summary: User login
+      tags:
+      - auth
+swagger: "2.0"

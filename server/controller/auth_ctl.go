@@ -12,6 +12,17 @@ type LoginForm struct {
 	Password string `json:"password"`
 }
 
+// Login godoc
+// @Summary User login
+// @Description Authenticate user and return JWT token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param loginForm body LoginForm true "Login credentials"
+// @Success 200 {object} LoginRes
+// @Failure 400 {object} utils.ErrRes
+// @Failure 401 {object} utils.ErrRes
+// @Router /auth/login [post]
 func Login(c *fiber.Ctx) error {
 	form := new(LoginForm)
 	if err := c.BodyParser(form); err != nil {
@@ -39,4 +50,11 @@ func Login(c *fiber.Ctx) error {
 		"role":     user.Role,
 		"token":    accessToken,
 	})
+}
+
+type LoginRes struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+	Token    string `json:"token"`
 }

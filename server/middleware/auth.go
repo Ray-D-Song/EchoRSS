@@ -10,7 +10,7 @@ import (
 )
 
 func AuthMdl(c *fiber.Ctx) error {
-	if c.Path() == "/api/auth/login" || c.Path() == "/api/auth/refresh-token" {
+	if c.Path() == "/api/auth/login" || strings.HasPrefix(c.Path(), "/swagger") {
 		return c.Next()
 	}
 	authHeader := c.Get("Authorization")

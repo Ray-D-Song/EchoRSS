@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"ray-d-song.com/echo-rss/controller"
@@ -13,6 +12,10 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
+	_ "ray-d-song.com/echo-rss/docs"
 )
 
 func init() {
@@ -23,6 +26,11 @@ func init() {
 	utils.InitLogger()
 }
 
+// @title Echo RSS API
+// @version 1.0
+// @description Echo RSS API
+// @host localhost:8080
+// @BasePath /api
 func main() {
 	err := db.Migrate()
 	if err != nil {
@@ -40,6 +48,7 @@ func main() {
 	}
 
 	app := fiber.New()
+	app.Get("/swagger/*", swagger.HandlerDefault)
 	app.Use(middleware.AuthMdl)
 	app.Use(middleware.LoggerMiddleware())
 	api := app.Group("/api")

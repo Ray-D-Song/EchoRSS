@@ -27,3 +27,5 @@ script
 .vscode
 db.sqlite3
 resources
+
+tmp
