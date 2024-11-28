@@ -7,8 +7,7 @@ import Article from '../components/article'
 import useView from '@/hooks/use-view'
 import useFetch from '@/hooks/use-fetch'
 import { SidebarProvider } from '@/components/ui/sidebar'
-import { Edit, Loader2, RefreshCcw, Trash } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import ActionButtonGroup from '@/components/action-button-group'
 
 function Homepage() {
   useView()
@@ -43,15 +42,6 @@ function Homepage() {
       } : f) ?? [])
     }
   }
-  // delete feed
-  const { run: deleteFeed, loading: deletingFeed } = useFetch(`/feeds?feedID=${selectedFeed?.id}`, {
-    method: 'DELETE',
-  }, {
-    immediate: false,
-    onSuccess: () => {
-      fetchFeeds()
-    }
-  })
 
   return (
     <div className="flex flex-col h-screen">
@@ -70,17 +60,7 @@ function Homepage() {
             <div className='flex items-center' style={{
               visibility: selectedFeed ? 'visible' : 'hidden',
             }}>
-              <Button variant="secondary" className='w-8 h-8 p-0 rounded-r-none border-r'>
-                <RefreshCcw className='w-4 h-4' />
-              </Button>
-              <Button variant="secondary" className='w-8 h-8 p-0 rounded-l-none rounded-r-none border-r'>
-                <Edit className='w-4 h-4' />
-              </Button>
-              <Button variant="secondary" className='w-8 h-8 p-0 rounded-l-none' onClick={deleteFeed} disabled={deletingFeed}>
-                {
-                  deletingFeed ? <Loader2 className='w-4 h-4 animate-spin' /> : <Trash className='w-4 h-4' />
-                }
-              </Button>
+              <ActionButtonGroup selectedFeed={selectedFeed} fetchFeeds={fetchFeeds} />
             </div>
           </div>
           <ScrollArea className="h-[calc(100vh-12rem)]">

@@ -4,9 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"go.uber.org/zap"
 	"ray-d-song.com/echo-rss/db"
-	"ray-d-song.com/echo-rss/utils"
 )
 
 type Feed struct {
@@ -53,13 +51,25 @@ func (f *Feed) Create() error {
 	return err
 }
 
+// read items count from db and update to feed
 func (f *Feed) UpdateCount() error {
 	if f.ID == "" {
 		return errors.New("id is required")
 	}
-	_, err := db.Bind.NamedExec("UPDATE feeds SET unread_count = :unread_count, total_count = :total_count, recent_update_count = :recent_update_count WHERE id = :id", f)
+	count, err := (&Item{}).CountByFeedID(f.ID)
 	if err != nil {
-		utils.Logger.Error("update feed count", zap.String("feedID", f.ID), zap.Int("unread_count", f.UnreadCount), zap.Int("total_count", f.TotalCount), zap.Int("recent_update_count", f.RecentUpdateCount), zap.Error(err))
+		return err
+	}
+	unreadCount, err := (&Item{}).CountUnreadByFeedID(f.ID)
+	if err != nil {
+		return err
+	}
+	f.TotalCount = count
+	f.UnreadCount = unreadCount
+	if f.RecentUpdateCount > 0 {
+		_, err = db.Bind.NamedExec("UPDATE feeds SET recent_update_count = :recent_update_count, total_count = :total_count, unread_count = :unread_count WHERE id = :id", f)
+	} else {
+		_, err = db.Bind.NamedExec("UPDATE feeds SET total_count = :total_count, unread_count = :unread_count WHERE id = :id", f)
 	}
 	return err
 }
@@ -82,6 +92,26 @@ func (f *Feed) Delete(feedID, userID string) error {
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM items WHERE feed_id = ? AND user_id = ?", feedID, userID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit()
+}
+
+func (f *Feed) MarkAllAsRead(userID string, feedID string) error {
+	// start transaction
+	tx, err := db.Bind.Begin()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec("UPDATE items SET read = 1 WHERE user_id = ? AND feed_id = ?", userID, feedID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec("UPDATE feeds SET unread_count = 0 WHERE id = ?", feedID)
 	if err != nil {
 		tx.Rollback()
 		return err

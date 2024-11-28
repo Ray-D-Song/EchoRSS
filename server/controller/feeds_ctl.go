@@ -7,11 +7,17 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mmcdole/gofeed"
-	"go.uber.org/zap"
 	"ray-d-song.com/echo-rss/model"
 	"ray-d-song.com/echo-rss/utils"
 )
 
+// ListFeedsHdl godoc
+// @Summary List all feeds
+// @Description Get a list of all feeds
+// @Tags feeds
+// @Produce json
+// @Success 200 {array} model.Feed
+// @Failure 500 {object} utils.ErrRes
 func ListFeedsHdl(c *fiber.Ctx) error {
 	userID := c.Locals("user").(string)
 	feeds, err := (&model.Feed{}).List(userID)
@@ -26,6 +32,15 @@ type CreateFeedReq struct {
 	CategoryName string `json:"category"`
 }
 
+// CreateFeedHdl godoc
+// @Summary Create a new feed
+// @Description Create a new feed with the provided details
+// @Tags feeds
+// @Param feed body CreateFeedReq true "Feed details"
+// @Success 200 {object} model.Feed
+// @Failure 400 {object} utils.ErrRes
+// @Failure 500 {object} utils.ErrRes
+// @Router /feeds [post]
 func CreateFeedHdl(c *fiber.Ctx) error {
 	req := new(CreateFeedReq)
 	if err := c.BodyParser(req); err != nil {
@@ -84,6 +99,12 @@ func CreateFeedHdl(c *fiber.Ctx) error {
 	return c.JSON(feed)
 }
 
+// RefreshFeedsHdl godoc
+// @Summary Refresh feeds
+// @Description Refresh feeds for the user
+// @Tags feeds
+// @Success 200 {array} model.Feed
+// @Failure 500 {object} utils.ErrRes
 func RefreshFeedsHdl(c *fiber.Ctx) error {
 	userID := c.Locals("user").(string)
 	feeds, err := (&model.Feed{}).List(userID)
@@ -128,10 +149,7 @@ func RefreshFeedsHdl(c *fiber.Ctx) error {
 			}
 			newItemsCount++
 		}
-		feed.UnreadCount += newItemsCount
-		feed.TotalCount += newItemsCount
 		feed.RecentUpdateCount = newItemsCount
-		utils.Logger.Info("refresh feed", zap.String("feedID", feed.ID), zap.Int("unread_count", feed.UnreadCount), zap.Int("total_count", feed.TotalCount), zap.Int("recent_update_count", feed.RecentUpdateCount))
 		err = feed.UpdateCount()
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(utils.LogError(err.Error()))
@@ -140,6 +158,14 @@ func RefreshFeedsHdl(c *fiber.Ctx) error {
 	return c.JSON(feeds)
 }
 
+// DeleteFeedHdl godoc
+// @Summary Delete a feed
+// @Description Delete a feed by ID
+// @Tags feeds
+// @Param feedID query string true "Feed ID"
+// @Success 200 {object} fiber.Map
+// @Failure 400 {object} utils.ErrRes
+// @Failure 500 {object} utils.ErrRes
 func DeleteFeedHdl(c *fiber.Ctx) error {
 	feedID := c.Query("feedID")
 	if feedID == "" {
@@ -147,6 +173,25 @@ func DeleteFeedHdl(c *fiber.Ctx) error {
 	}
 	userID := c.Locals("user").(string)
 	err := (&model.Feed{}).Delete(feedID, userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.LogError(err.Error()))
+	}
+	return c.JSON(fiber.Map{"success": true})
+}
+
+// MarkAllFeedsAsReadHdl godoc
+// @Summary Mark all feeds as read
+// @Description Mark all feeds as read for the user
+// @Tags feeds
+// @Success 200 {object} fiber.Map
+// @Failure 500 {object} utils.ErrRes
+func MarkAllFeedsAsReadHdl(c *fiber.Ctx) error {
+	userID := c.Locals("user").(string)
+	feedID := c.Query("feedID")
+	if feedID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(utils.LogError("feedID is required"))
+	}
+	err := (&model.Feed{}).MarkAllAsRead(userID, feedID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.LogError(err.Error()))
 	}

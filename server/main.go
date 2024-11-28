@@ -18,20 +18,13 @@ import (
 	_ "ray-d-song.com/echo-rss/docs"
 )
 
-func init() {
-	err := utils.EnsureDir()
-	if err != nil {
-		panic(err)
-	}
-	utils.InitLogger()
-}
-
 // @title Echo RSS API
 // @version 1.0
 // @description Echo RSS API
 // @host localhost:8080
 // @BasePath /api
 func main() {
+	utils.InitLogger()
 	err := db.Migrate()
 	if err != nil {
 		panic(err)
@@ -72,6 +65,7 @@ func main() {
 	feeds.Get("/", controller.ListFeedsHdl)
 	feeds.Post("/refresh", controller.RefreshFeedsHdl)
 	feeds.Delete("/", controller.DeleteFeedHdl)
+	feeds.Put("/all-read", controller.MarkAllFeedsAsReadHdl)
 
 	items := api.Group("/items")
 	items.Get("/", controller.GetItemsHdl)

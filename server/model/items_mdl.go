@@ -19,13 +19,15 @@ type Item struct {
 	CreatedAt   string `json:"createdAt" db:"created_at"`
 }
 
-func (i *Item) CountUnread(feedID string) (int, error) {
+func (i *Item) CountByFeedID(feedID string) (int, error) {
+	var count int
+	err := db.Bind.Get(&count, "SELECT COUNT(*) FROM items WHERE feed_id = ?", feedID)
+	return count, err
+}
+
+func (i *Item) CountUnreadByFeedID(feedID string) (int, error) {
 	var count int
 	err := db.Bind.Get(&count, "SELECT COUNT(*) FROM items WHERE feed_id = ? AND read = 0", feedID)
-	if err == nil {
-		// update unread count
-		db.Bind.Exec("UPDATE feeds SET unread_count = ? WHERE id = ?", count, feedID)
-	}
 	return count, err
 }
 

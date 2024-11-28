@@ -28,7 +28,7 @@ interface SidebarProps {
 
 export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: SidebarProps) {
 
-  const { user } = useContext(AppCtx)
+  const { user, refreshFeeds } = useContext(AppCtx)
   const [open, setOpen] = useState(false)
   const [userDialogVisible, setUserDialogVisible] = useState(false)
   // fetch categories
@@ -36,12 +36,7 @@ export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: Si
     immediate: true,
   })
 
-  // refresh feeds
-  const { run: refreshFeeds } = useFetch('/feeds/refresh', {
-    method: 'POST'
-  }, {
-    immediate: true
-  })
+
 
   function onNewFeedSuccess() {
     refreshFeeds()
@@ -50,7 +45,7 @@ export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: Si
   }
 
   const handleRename = (category: Category) => {
-    const newName = window.prompt('请输入新的分类名称:', category.name)
+    const newName = window.prompt('Enter new category name:', category.name)
     if (newName && newName !== category.name) {
       fetcher(`/category/rename?originalName=${category.name}&newName=${newName}`, {
         method: 'PUT'
@@ -67,7 +62,7 @@ export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: Si
   }
 
   const handleDelete = (category: Category) => {
-    if (window.confirm(`确定要删除分类 "${category.name}" 吗?`)) {
+    if (window.confirm(`Delete "${category.name}" category?`)) {
       fetcher(`/category?name=${category.name}`, {
         method: 'DELETE'
       })

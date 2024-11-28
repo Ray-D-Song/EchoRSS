@@ -43,11 +43,12 @@ function Article({ article, updateArticle }: ArticleProps) {
       const link = target.closest('a')
       if (link) {
         e.preventDefault()
-        const resDoc = await fetcher<string>(`/tools/fetch-remote-content?url=${link.href}`)
+        let resDoc = await fetcher<string>(`/tools/fetch-remote-content?url=${link.href}`)
         if (!resDoc) {
           // open in new tab
           window.open(link.href, '_blank')
         }
+        resDoc = resDoc?.replace('<head>', `<head><base href="${new URL(article.link).origin}" />`) ?? resDoc
         const doc = new DOMParser().parseFromString(resDoc ?? '', 'text/html')
         const docContent = new Readability(doc).parse()?.content
         const docContentHtml = new DOMParser().parseFromString(docContent ?? '', 'text/html')
@@ -67,7 +68,7 @@ function Article({ article, updateArticle }: ArticleProps) {
         articleContainer.removeEventListener('click', handleClick)
       }
     }
-  }, [article.read])
+  }, [article.read, article.id])
 
   return <div className='prose dark:prose-invert'>
     <section>

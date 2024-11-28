@@ -6,6 +6,14 @@ import (
 	"ray-d-song.com/echo-rss/utils"
 )
 
+// ListUsersHdl godoc
+// @Summary List all users
+// @Description Get a list of all users
+// @Tags users
+// @Produce json
+// @Success 200 {array} model.User
+// @Failure 500 {object} utils.ErrRes
+// @Router /users [get]
 func ListUsersHdl(c *fiber.Ctx) error {
 	users := []model.User{}
 	if err := model.ListUsers(&users); err != nil {
@@ -14,6 +22,17 @@ func ListUsersHdl(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+// CreateUserHdl godoc
+// @Summary Create a new user
+// @Description Create a new user with the provided details
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body model.User true "User details"
+// @Success 200 {object} model.User
+// @Failure 400 {object} utils.ErrRes
+// @Failure 500 {object} utils.ErrRes
+// @Router /users [post]
 func CreateUserHdl(c *fiber.Ctx) error {
 	if !model.IsAdmin(c.Get("user_id")) {
 		return c.Status(fiber.StatusForbidden).JSON(utils.LogError("unauthorized"))
@@ -28,6 +47,16 @@ func CreateUserHdl(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
+// DeleteUserHdl godoc
+// @Summary Delete a user
+// @Description Delete a user by ID
+// @Tags users
+// @Param id query string true "User ID"
+// @Success 204
+// @Failure 403 {object} utils.ErrRes
+// @Failure 400 {object} utils.ErrRes
+// @Failure 500 {object} utils.ErrRes
+// @Router /users [delete]
 func DeleteUserHdl(c *fiber.Ctx) error {
 	if !model.IsAdmin(c.Get("user_id")) {
 		return c.Status(fiber.StatusForbidden).JSON(utils.LogError("unauthorized"))
@@ -42,6 +71,16 @@ func DeleteUserHdl(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
+// RestoreUserHdl godoc
+// @Summary Restore a user
+// @Description Restore a user by ID
+// @Tags users
+// @Param id query string true "User ID"
+// @Success 204
+// @Failure 403 {object} utils.ErrRes
+// @Failure 400 {object} utils.ErrRes
+// @Failure 500 {object} utils.ErrRes
+// @Router /users/restore [post]
 func RestoreUserHdl(c *fiber.Ctx) error {
 	if !model.IsAdmin(c.Get("user_id")) {
 		return c.Status(fiber.StatusForbidden).JSON(utils.LogError("unauthorized"))
