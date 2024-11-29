@@ -10,6 +10,9 @@ import (
 )
 
 func AuthMdl(c *fiber.Ctx) error {
+	if !strings.HasPrefix(c.Path(), "/api") {
+		return c.Next()
+	}
 	if c.Path() == "/api/auth/login" || strings.HasPrefix(c.Path(), "/swagger") {
 		return c.Next()
 	}

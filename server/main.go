@@ -1,6 +1,8 @@
 package main
 
 import (
+	rice "github.com/GeertJohan/go.rice"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"ray-d-song.com/echo-rss/controller"
@@ -41,6 +43,7 @@ func main() {
 	}
 
 	app := fiber.New()
+
 	app.Get("/swagger/*", swagger.HandlerDefault)
 	app.Use(middleware.AuthMdl)
 	app.Use(middleware.LoggerMiddleware())
@@ -74,5 +77,8 @@ func main() {
 	tools := api.Group("/tools")
 	tools.Get("/fetch-remote-content", controller.FetchRemoteContent)
 
+	app.Use("/*", filesystem.New(filesystem.Config{
+		Root: rice.MustFindBox("dist").HTTPBox(),
+	}))
 	app.Listen(":8080")
 }

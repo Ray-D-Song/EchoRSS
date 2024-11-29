@@ -1,3 +1,4 @@
+import { redirect } from '@/router'
 import toast from 'react-hot-toast'
 
 async function fetcher<T>(url: string, options?: RequestInit) {
@@ -33,7 +34,9 @@ async function fetcher<T>(url: string, options?: RequestInit) {
 
 export function logout() {
   localStorage.removeItem('user')
-  window.location.href = '/login'
+  if (window.location.hash !== '#/login') {
+    redirect('/login')
+  }
 }
 
 export default fetcher
