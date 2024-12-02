@@ -3,6 +3,7 @@ module ray-d-song.com/echo-rss
 go 1.23.0
 
 require (
+	github.com/GeertJohan/go.rice v1.0.3
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/swagger v1.1.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
@@ -18,7 +19,6 @@ require (
 )
 
 require (
-	github.com/GeertJohan/go.rice v1.0.3 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect

@@ -29,3 +29,5 @@ db.sqlite3
 resources
 
 tmp
+
+echo-rss
