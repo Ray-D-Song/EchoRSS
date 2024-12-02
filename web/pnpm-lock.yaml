@@ -44,9 +44,6 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.1.4
         version: 1.1.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@ray-d-song/guesslang-js':
-        specifier: 0.1.0-alpha.9
-        version: 0.1.0-alpha.9
       class-variance-authority:
         specifier: 0.7.0
         version: 0.7.0
@@ -1065,9 +1062,6 @@ packages:
 
   '@radix-ui/rect@1.1.0':
     resolution: {integrity: sha512-A9+lCBZoaMJlVKcRBz2YByCG+Cp2t6nAnMnNba+XiWxnj6r4JUFqfsgwocMBZU9LPtdxC6wB56ySYpc7LQIoJg==}
-
-  '@ray-d-song/guesslang-js@0.1.0-alpha.9':
-    resolution: {integrity: sha512-cJv2/vVv7P5hsrO0lycsshphbpJuDTdiVcF1JyHNFArEHG/z8rh9EyL6TxJPctar8QsDErkASESGADek+6+rLw==}
 
   '@remix-run/router@1.15.2':
     resolution: {integrity: sha512-+Rnav+CaoTE5QJc4Jcwh5toUpnVLKYbpU6Ys0zqbakqbaLQHeglLVHPfxOiQqdNmUy5C2lXz5dwC6tQNX2JW2Q==}
@@ -3660,8 +3654,6 @@ snapshots:
       '@types/react-dom': 18.3.1
 
   '@radix-ui/rect@1.1.0': {}
-
-  '@ray-d-song/guesslang-js@0.1.0-alpha.9': {}
 
   '@remix-run/router@1.15.2': {}
 
