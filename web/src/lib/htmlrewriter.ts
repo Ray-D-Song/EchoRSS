@@ -1,5 +1,3 @@
-import langDetect from './langdetect'
-
 async function rewriteLinks(origin: string, container: HTMLElement): Promise<void> {
   return new Promise((resolve) => {
     container.querySelectorAll('a').forEach(a => {
@@ -42,29 +40,12 @@ async function rewriteImages(origin: string, container: HTMLElement): Promise<vo
 
 async function rewriteCode(container: HTMLElement): Promise<void> {
   const promises = Array.from(container.querySelectorAll('pre code')).map(async code => {
-    const classList = code.parentElement?.classList.toString()
-    // code language
-    let lang: string = ''
-    // hljs, highlight xxx
-    if (classList?.includes('highlight')) {
-      lang = classList.split(' ')[1]
-    }
-    // prism, language-xxx
-    if (classList?.includes('language-')) {
-      lang = classList.split(' ').find(item => item.startsWith('language-'))?.replace('language-', '') || ''
-    }
-
-    if (lang.length === 0) {
-      // no language specified, detect by content
-      const content = code.textContent || ''
-      lang = await langDetect(content)
-    }
-
-    if (lang.length === 0) {
-      lang = 'text'
-    }
-
-    code.classList.add(`language-${lang}`)
+    const divs = code.querySelectorAll('div');
+    divs.forEach(div => {
+      const lineBreak = document.createElement('span');
+      lineBreak.textContent = '\n';
+      div.parentNode?.replaceChild(lineBreak, div);
+    });
   })
 
   return Promise.all(promises).then(() => {})

@@ -36,8 +36,6 @@ export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: Si
     immediate: true,
   })
 
-
-
   function onNewFeedSuccess() {
     refreshFeeds()
     fetchCategories()
@@ -108,10 +106,8 @@ export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: Si
                           <div className="flex items-center">
                             <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                             <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
+                              <DropdownMenuTrigger asChild className='ml-2'>
+                                <MoreHorizontal className="h-4 w-4" />
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => handleRename(category)}>Rename</DropdownMenuItem>
@@ -135,7 +131,7 @@ export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: Si
                               >
                                 <div className='flex items-center'>
                                   {
-                                    feed.favicon ? <img src={feed.favicon} alt="favicon" className='w-4 h-4 mr-2' /> : <Rss className="mr-2 h-4 w-4" />
+                                    feed.favicon ? <img src={`data:image/png;base64,${feed.favicon}`} alt="favicon" className='w-4 h-4 mr-2' /> : <Rss className="mr-2 h-4 w-4" />
                                   }
                                   {feed.title}
                                 </div>

@@ -1,8 +1,12 @@
 package model
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"ray-d-song.com/echo-rss/db"
+	"ray-d-song.com/echo-rss/utils"
 )
 
 type User struct {
@@ -58,7 +62,22 @@ func RestoreUser(id string) error {
 func IsAdmin(id string) bool {
 	var user User
 	if err := user.GetRoleByID(id); err != nil {
+		utils.Logger.Error("get role by id", zap.Error(err), zap.String("id", id))
 		return false
 	}
+
+	utils.Logger.Info("is admin", zap.Any("user", user))
 	return user.Role == "admin"
+}
+
+func (u *User) Update() error {
+	if u.ID == "" {
+		return errors.New("id is required")
+	}
+	_, err := db.Bind.NamedExec(`
+		UPDATE users 
+		SET username = :username, password = :password
+		WHERE id = :id
+	`, u)
+	return err
 }

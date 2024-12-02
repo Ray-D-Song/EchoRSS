@@ -5,6 +5,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from './ui/drawer'
 import htmlRewriter from '@/lib/htmlrewriter'
 import Markdown from 'react-markdown'
 import turndownService from '@/lib/turndown'
+import hljs from 'highlight.js'
 
 interface ArticleProps {
   article: Article
@@ -23,6 +24,9 @@ function Article({ article, updateArticle }: ArticleProps) {
       setBeautifiedContent(turndownService.turndown(docContentHtml.documentElement.innerHTML))
     })
   }, [article.content, article.description])
+  useEffect(() => {
+    hljs.highlightAll()
+  }, [beautifiedContent])
 
   useEffect(() => {
     if (article.read === 0) {

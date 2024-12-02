@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sidebar } from '@/components/sidebar/index'
@@ -21,10 +21,16 @@ function Homepage() {
       }
     }
   })
-
+  const scrollRef = useRef<{ root: HTMLDivElement | null; viewport: HTMLDivElement | null }>(null);
+  function scrollToTop() {
+    if (scrollRef.current?.viewport) {
+      scrollRef.current.viewport.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
   useEffect(() => {
     if (selectedFeed) {
       refreshItems()
+      scrollToTop()
     }
   }, [selectedFeed])
 
@@ -42,6 +48,7 @@ function Homepage() {
       } : f) ?? [])
     }
   }
+
 
   return (
     <div className="flex flex-col h-screen">
@@ -63,7 +70,7 @@ function Homepage() {
               <ActionButtonGroup selectedFeed={selectedFeed} fetchFeeds={fetchFeeds} />
             </div>
           </div>
-          <ScrollArea className="h-[calc(100vh-12rem)]">
+          <ScrollArea ref={scrollRef} className="h-[calc(100vh-12rem)]">
             <div className="space-y-4">
               {articles?.map((article) => (
                 <Card key={article.id} onClick={() => setSelectedArticle(article)} className={`${article.read ? 'opacity-60' : ''}`}>

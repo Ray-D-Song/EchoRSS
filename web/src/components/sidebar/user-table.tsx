@@ -1,20 +1,19 @@
-import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from '@/components/ui/table'
-import useFetch from '@/hooks/use-fetch'
-import { memo, useContext, useState } from 'react'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useContext, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Check, Edit, Eye, EyeOff, RefreshCcw, Trash, X } from 'lucide-react'
 import { AppCtx } from '@/lib/ctx'
 import { Input } from '@/components/ui/input'
 import fetcher from '@/lib/fetcher'
 import { toast } from 'react-hot-toast'
+import useFetch from '@/hooks/use-fetch'
 
 function UserTable() {
-
   const { user: currentUser } = useContext(AppCtx)
-
   const { data, loading, run: fetchUsers } = useFetch<UserListItem[]>('/users', {}, { immediate: true })
   const [showPassword, setShowPassword] = useState<{[key: string]: boolean}>({})
+  const [editingUser, setEditingUser] = useState<{id: string, username: string, password: string} | null>(null)
+  const [newUserForm, setNewUserForm] = useState<{username: string, password: string}>({username: '', password: ''})
+  const [newUserBKVisible, setNewUserBKVisible] = useState(false)
 
   const togglePassword = (userId: string) => {
     setShowPassword(prev => ({
@@ -22,9 +21,6 @@ function UserTable() {
       [userId]: !prev[userId]
     }))
   }
-
-  const [newUserForm, setNewUserForm] = useState<{username: string, password: string}>({username: '', password: ''})
-  const [newUserBKVisible, setNewUserBKVisible] = useState(false)
 
   const handleNewUserSubmit = () => {
     fetcher('/users', {
@@ -46,6 +42,7 @@ function UserTable() {
       fetchUsers()
     })
   }
+
   const handleRestoreUser = (userId: string) => {
     fetcher(`/users/restore?id=${userId}`, {
       method: 'PUT'
@@ -55,108 +52,136 @@ function UserTable() {
     })
   }
 
-  return ( 
+  const handleUpdateUser = (userId: string, username: string, password: string) => {
+    fetcher(`/users`, {
+      method: 'PUT',
+      body: JSON.stringify({id: userId, username, password})
+    }).then(() => {
+      toast.success('User updated successfully')
+      fetchUsers()
+    })
+  }
+
+  const handleEditClick = (user: UserListItem) => {
+    setEditingUser({
+      id: user.id,
+      username: user.username,
+      password: user.password
+    })
+  }
+
+  const handleEditSubmit = () => {
+    if(!editingUser) return
+    handleUpdateUser(editingUser.id, editingUser.username, editingUser.password)
+    setEditingUser(null)
+  }
+
+  return (
     <section>
-      <div className='mb-2 flex justify-end'>
+      <div className='mb-2 flex'>
         <Button size="sm" onClick={() => setNewUserBKVisible(true)}>
           New User
         </Button>
       </div>
-  <Table className='text-center'>
-    <TableHeader>
-      <TableRow>
-        <TableHead className='text-center'>Username</TableHead>
-        <TableHead className='text-center'>Password</TableHead>
-        <TableHead className='text-center'>Actions</TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      <TableLoadingWrapper loading={loading}>
-        {data?.map((user) => (
-          <TableRow key={user.id} className={user.username === currentUser?.username ? 'text-yellow-600' : ''}>
-            <TableCell className='p-1'>{user.username}</TableCell>
-            <TableCell className='p-1'>
-              <div className='flex items-center justify-center'>
-                <span>{showPassword[user.id] ? user.password : '••••••'}</span>
-                <Button 
-                  variant="ghost" 
-                  className='hover:text-yellow-600'
-                  onClick={() => togglePassword(user.id)}
-                >
-                  {showPassword[user.id] ? 
-                  <EyeOff className="h-4 w-4" /> : 
-                  <Eye className="h-4 w-4" />
-                  }
-                </Button>
+
+        {loading ? (
+          <div className='col-span-3 text-center p-4'>Loading...</div>
+        ) : (
+          <>
+            {data?.map((user) => (
+              <div key={user.id} className={`flex justify-between md:text-sm items-center ${user.username === currentUser?.username ? 'text-yellow-600' : ''}`}>
+                <div>
+                  {editingUser?.id === user.id ? (
+                    <Input
+                      value={editingUser.username}
+                      onChange={(e) => setEditingUser(prev => ({...prev!, username: e.target.value}))}
+                    />
+                  ) : (
+                    <span className='px-2'>{user.username}</span>
+                  )}
+                </div>
+                <div>
+                  <div className='flex items-center justify-center'>
+                    {editingUser?.id === user.id ? (
+                      <Input
+                        value={editingUser.password}
+                        onChange={(e) => setEditingUser(prev => ({...prev!, password: e.target.value}))}
+                      />
+                    ) : (
+                      <div className='flex items-center gap-2'>
+                        <span>{showPassword[user.id] ? user.password : '••••••'}</span>
+                        <Button 
+                          variant="ghost"
+                          className='hover:text-yellow-600'
+                          onClick={() => togglePassword(user.id)}
+                        >
+                          {showPassword[user.id] ? 
+                            <EyeOff className="h-4 w-4" /> : 
+                            <Eye className="h-4 w-4" />
+                          }
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className='flex gap-2 justify-center'>
+                  {editingUser?.id === user.id ? (
+                    <>
+                      <Button variant="ghost" onClick={handleEditSubmit} className='p-2'>
+                        <Check className="h-4 w-4 text-green-500" />
+                      </Button>
+                      <Button variant="ghost" onClick={() => setEditingUser(null)} className='p-2'>
+                        <X className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="ghost" className='p-2' onClick={() => handleEditClick(user)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      {(user.username !== currentUser?.username && currentUser?.role === 'admin') && (
+                        <Button variant="ghost" className='p-2' onClick={() => user.deleted === 0 ? handleDeleteUser(user.id) : handleRestoreUser(user.id)}>
+                          {user.deleted === 0 ? 
+                            <Trash className="h-4 w-4 text-red-900" /> :
+                            <RefreshCcw className="h-4 w-4 text-green-800" />
+                          }
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </TableCell>
-            <TableCell className='flex gap-2 justify-center p-1'>
-              <Button variant="ghost" className='p-2'>
-                <Edit className="h-4 w-4" />
-              </Button>
-              {
-                (user.username !== currentUser?.username && currentUser?.role === 'admin') && (
-                  <>
-                    <Button variant="ghost" className='p-2' onClick={() => user.deleted === 0 ? handleDeleteUser(user.id) : handleRestoreUser(user.id)}>
-                      {
-                        user.deleted === 0 ? 
-                        <Trash className="h-4 w-4 text-red-900" /> :
-                        <RefreshCcw className="h-4 w-4 text-green-800" />
-                      }
-                    </Button>
-                  </>
-                )
-              }
-            </TableCell>
-          </TableRow>
-        ))}
-        {
-          newUserBKVisible && (
-            <TableRow>
-              <TableCell className='p-1'>
-                <Input
-                  value={newUserForm.username}
-                  onChange={(e) => setNewUserForm(prev => ({...prev, username: e.target.value}))}
-                  autoFocus
-                  className='h-8 w-fit border-b border-x-0 border-t-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-center'
-                />
-              </TableCell>
-              <TableCell className='p-1'>
-                <Input
-                  value={newUserForm.password}
-                  onChange={(e) => setNewUserForm(prev => ({...prev, password: e.target.value}))}
-                  className='h-8 w-fit border-b border-x-0 border-t-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-center'
-                />
-              </TableCell>
-              <TableCell className='flex gap-2 justify-center p-1'>
-                <Button variant="ghost" onClick={handleNewUserSubmit} className='p-2'>
-                  <Check className="h-4 w-4 text-green-500" />
-                </Button>
-                <Button variant="ghost" onClick={() => setNewUserBKVisible(false)} className='p-2'>
-                  <X className="h-4 w-4 text-red-500" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          )
-        }
-      </TableLoadingWrapper>
-    </TableBody>
-  </Table>
-  </section>
+            ))}
+
+            {newUserBKVisible && (
+              <div className='flex justify-between items-center'>
+                <div>
+                  <Input
+                    value={newUserForm.username}
+                    onChange={(e) => setNewUserForm(prev => ({...prev, username: e.target.value}))}
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <Input
+                    value={newUserForm.password}
+                    onChange={(e) => setNewUserForm(prev => ({...prev, password: e.target.value}))}
+                  />
+                </div>
+                <div className='flex gap-2 justify-center'>
+                  <Button variant="ghost" onClick={handleNewUserSubmit} className='p-2'>
+                    <Check className="h-4 w-4 text-green-500" />
+                  </Button>
+                  <Button variant="ghost" onClick={() => setNewUserBKVisible(false)} className='p-2'>
+                    <X className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+    </section>
   )
-}
-
-const TableSkeleton = memo(() => {
-  // 5 rows skeleton
-  return Array.from({ length: 5 }).map((_, i) => (
-    <TableRow key={i}>
-      <Skeleton className='h-4 w-full' />
-    </TableRow>
-  ))
-})
-
-const TableLoadingWrapper = ({ children, loading }: { children: React.ReactNode, loading: boolean }) => {
-  return loading ? <TableSkeleton /> : children
 }
 
 export default UserTable

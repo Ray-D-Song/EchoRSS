@@ -57,6 +57,7 @@ func main() {
 	users.Post("/", controller.CreateUserHdl)
 	users.Delete("/", controller.DeleteUserHdl)
 	users.Put("/restore", controller.RestoreUserHdl)
+	users.Put("/", controller.UpdateUserHdl)
 
 	category := api.Group("/category")
 	category.Get("/", controller.ListCategoriesHdl)

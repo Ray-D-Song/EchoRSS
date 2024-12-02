@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 	"ray-d-song.com/echo-rss/model"
 	"ray-d-song.com/echo-rss/utils"
 )
@@ -92,5 +93,41 @@ func RestoreUserHdl(c *fiber.Ctx) error {
 	if err := model.RestoreUser(id); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.LogError(err.Error()))
 	}
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+// UpdateUserHdl godoc
+// @Summary Update a user
+// @Description Update a user's username and password
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id query string true "User ID"
+// @Param user body model.User true "User details"
+// @Success 204
+// @Failure 403 {object} utils.ErrRes
+// @Failure 400 {object} utils.ErrRes
+// @Failure 500 {object} utils.ErrRes
+// @Router /users [put]
+func UpdateUserHdl(c *fiber.Ctx) error {
+	operatorID := c.Locals("user").(string)
+
+	if operatorID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(utils.LogError("id is required"))
+	}
+	if !model.IsAdmin(operatorID) {
+		return c.Status(fiber.StatusForbidden).JSON(utils.LogError("unauthorized"))
+	}
+
+	user := model.User{}
+	if err := c.BodyParser(&user); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(utils.LogError(err.Error()))
+	}
+
+	utils.Logger.Info("update user", zap.Any("user", user))
+	if err := user.Update(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.LogError(err.Error()))
+	}
+
 	return c.SendStatus(fiber.StatusNoContent)
 }
