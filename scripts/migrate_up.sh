@@ -9,8 +9,8 @@ if [ ! -f "$DB_PATH" ]; then
     exit 1
 fi
 
-# get latest down migration file
-latest_migration=$(ls -1 "$MIGRATION_DIR"/*down.sql 2>/dev/null | sort -r | head -n 1)
+# get latest up migration file
+latest_migration=$(ls -1 "$MIGRATION_DIR"/*up.sql 2>/dev/null | sort -r | head -n 1)
 
 if [ -z "$latest_migration" ]; then
     echo "migrate no change"
@@ -19,8 +19,8 @@ fi
 
 # execute migration
 if sqlite3 "$DB_PATH" < "$latest_migration"; then
-    echo "migrate down success"
+    echo "migrate up success"
 else
-    echo "migrate down failed"
+    echo "migrate up failed"
     exit 1
 fi

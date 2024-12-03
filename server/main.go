@@ -59,6 +59,10 @@ func main() {
 	users.Put("/restore", controller.RestoreUserHdl)
 	users.Put("/", controller.UpdateUserHdl)
 
+	userSetting := api.Group("/user/config")
+	userSetting.Get("/", controller.GetUserSetting)
+	userSetting.Put("/", controller.UpdateAiSetting)
+
 	category := api.Group("/category")
 	category.Get("/", controller.ListCategoriesHdl)
 	category.Put("/rename", controller.RenameCategoryHdl)
@@ -75,11 +79,17 @@ func main() {
 	items.Get("/", controller.GetItemsHdl)
 	items.Put("/read", controller.SetItemReadHdl)
 
+	bookmark := api.Group("/bookmark")
+	bookmark.Put("/", controller.ToggleItemBookmarkHdl)
+
 	tools := api.Group("/tools")
 	tools.Get("/fetch-remote-content", controller.FetchRemoteContent)
+
+	translate := api.Group("/translate")
+	translate.Post("/", controller.TranslateHdl)
 
 	app.Use("/*", filesystem.New(filesystem.Config{
 		Root: rice.MustFindBox("dist").HTTPBox(),
 	}))
-	app.Listen(":8080")
+	app.Listen(":11299")
 }

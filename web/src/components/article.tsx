@@ -1,21 +1,27 @@
 import fetcher from '@/lib/fetcher'
 import { useEffect, useState } from 'react'
 import { Readability } from '@mozilla/readability'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from './ui/drawer'
 import htmlRewriter from '@/lib/htmlrewriter'
 import Markdown from 'react-markdown'
 import turndownService from '@/lib/turndown'
 import hljs from 'highlight.js'
+import { Button } from './ui/button'
+import { BookmarkIcon, LanguagesIcon } from 'lucide-react'
+import useTranslate from '@/hooks/use-trans'
+import toast from 'react-hot-toast'
+import useFetch from '@/hooks/use-fetch'
 
 interface ArticleProps {
   article: Article
-  updateArticle: (article: Article) => void
+  updateArticle: (article: Article, actions: 'read' | 'bookmark') => void
+  setRemoteContent: (content: {
+    content: string
+    url: string
+  }) => void
+  setDrawerVisible: (visible: boolean) => void
 }
 
-function Article({ article, updateArticle }: ArticleProps) {
-  const [remoteContent, setRemoteContent] = useState<string | null>(null)
-  const [drawerVisible, setDrawerVisible] = useState(false)
-
+function Article({ article, updateArticle, setRemoteContent, setDrawerVisible }: ArticleProps) {
   const [beautifiedContent, setBeautifiedContent] = useState<string | null>(null)
   useEffect(() => {
     const contentNeedBeautify = article.content.length > 0 ? article.content : article.description
@@ -24,9 +30,7 @@ function Article({ article, updateArticle }: ArticleProps) {
       setBeautifiedContent(turndownService.turndown(docContentHtml.documentElement.innerHTML))
     })
   }, [article.content, article.description])
-  useEffect(() => {
-    hljs.highlightAll()
-  }, [beautifiedContent])
+
 
   useEffect(() => {
     if (article.read === 0) {
@@ -37,7 +41,7 @@ function Article({ article, updateArticle }: ArticleProps) {
           updateArticle({
             ...article,
             read: 1,
-          })
+          }, 'read')
         }
       })
     }
@@ -57,7 +61,10 @@ function Article({ article, updateArticle }: ArticleProps) {
         const docContent = new Readability(doc).parse()?.content
         const docContentHtml = new DOMParser().parseFromString(docContent ?? '', 'text/html')
         await htmlRewriter(new URL(article.link).origin, docContentHtml.documentElement)
-        setRemoteContent(turndownService.turndown(docContentHtml.documentElement.innerHTML))
+        setRemoteContent({
+          content: turndownService.turndown(docContentHtml.documentElement.innerHTML),
+          url: link.href,
+        })
         setDrawerVisible(true)
       }
     }
@@ -74,25 +81,48 @@ function Article({ article, updateArticle }: ArticleProps) {
     }
   }, [article.read, article.id])
 
-  return <div className='prose dark:prose-invert'>
-    <section>
-      <Markdown>{beautifiedContent}</Markdown>
+  const { translate, result } = useTranslate({
+    url: article.id,
+    content: beautifiedContent ?? '',
+  })
+
+  useEffect(() => {
+    hljs.highlightAll()
+  }, [result])
+
+  const { run: toggleBookmark } = useFetch(`/bookmark?itemId=${article.id}`, {
+    method: 'PUT',
+  }, {
+    immediate: false,
+    onSuccess: () => {
+      updateArticle({
+        ...article,
+        bookmark: article.bookmark === 0 ? 1 : 0,
+      }, 'bookmark')
+    },
+    onError: () => {
+      toast.error(`Failed to ${article.bookmark === 0 ? 'bookmark' : 'remove bookmark'}`)
+    }
+  })
+
+  return <section className='prose dark:prose-invert'>
+      <div className='fixed bottom-6 right-6 z-10 shadow-lg hover:shadow-xl transition-shadow border'>
+        <Button 
+          size="icon" 
+          variant="ghost"
+          className='rounded-none'
+          onClick={() => {
+            translate()
+          }}
+        >
+          <LanguagesIcon className='w-5 h-5' />
+        </Button>
+        <Button size="icon" variant="ghost" className='rounded-none' onClick={toggleBookmark}>
+          <BookmarkIcon className={`w-5 h-5 ${article.bookmark === 1 ? 'text-yellow-500' : ''}`} />
+        </Button>
+      </div>
+      <Markdown>{result}</Markdown>
     </section>
-    <Drawer open={drawerVisible} onOpenChange={setDrawerVisible}>
-      <DrawerContent>
-        <div className='max-h-[90vh] overflow-y-scroll'>
-          <DrawerHeader>
-            <DrawerTitle></DrawerTitle>
-          </DrawerHeader>
-          <div className='items-center flex justify-center'>
-            <section className='prose dark:prose-invert'>
-              <Markdown>{remoteContent}</Markdown>
-            </section>
-          </div>
-        </div>
-      </DrawerContent>
-    </Drawer>
-  </div>
 }
 
 export default Article

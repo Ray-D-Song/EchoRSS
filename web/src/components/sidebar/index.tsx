@@ -1,4 +1,4 @@
-import { Folder, LogOut, Rss, Settings, User } from 'lucide-react'
+import { Folder, LogOut, Rss, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import useFetch from '@/hooks/use-fetch'
 import { useContext, useState } from 'react'
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
 import { toast } from 'react-hot-toast'
+import Setting from './setting'
 
 interface SidebarProps {
   selectedFeed: Feed | null
@@ -150,10 +151,7 @@ export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: Si
       </SidebarContent>
       <SidebarFooter className='bg-background'>
         <NewFeed open={open} setOpen={setOpen} categories={categories ?? []} onSuccess={onNewFeedSuccess} />
-        <Button variant="ghost" className="w-full justify-start">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </Button>
+        <Setting />
         {user?.role === 'admin' && (
           <Button variant="ghost" className="w-full justify-start" onClick={() => setUserDialogVisible(true)}>
             <User className="mr-2 h-4 w-4" />

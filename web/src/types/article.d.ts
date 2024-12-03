@@ -8,6 +8,7 @@ interface Article {
   description: string
   link: string
   pubDate: string
+  bookmark: number
 
   /**
    * whether the article has been read

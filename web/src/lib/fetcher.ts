@@ -4,11 +4,12 @@ async function fetcher<T>(url: string, options?: RequestInit) {
   url = `/api${url}`
   const res = await fetch(url, {
     method: 'GET',
+    ...options,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user') ?? '{}')?.token}`
+      'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user') ?? '{}')?.token}`,
+      ...options?.headers
     },
-    ...options,
   })
   if (!res.ok) {
     const errMsg = await res.json()

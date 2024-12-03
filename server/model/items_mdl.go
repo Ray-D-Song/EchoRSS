@@ -17,6 +17,7 @@ type Item struct {
 	Read        int    `json:"read" db:"read"`
 	PubDate     string `json:"pubDate" db:"pub_date"`
 	CreatedAt   string `json:"createdAt" db:"created_at"`
+	Bookmark    int    `json:"bookmark" db:"bookmark"`
 }
 
 func (i *Item) CountByFeedID(feedID string) (int, error) {
