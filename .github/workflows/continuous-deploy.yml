@@ -19,6 +19,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           
+      - name: check user
+        run: echo $USER
+
+      - name: newgrp docker 
+        run: newgrp docker
+
       - name: Pull latest image
         run: |
           docker pull ghcr.io/ray-d-song/echo-rss:dev
