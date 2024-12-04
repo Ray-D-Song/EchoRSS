@@ -1,7 +1,9 @@
 package main
 
 import (
-	rice "github.com/GeertJohan/go.rice"
+	"embed"
+	"net/http"
+
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
@@ -19,6 +21,9 @@ import (
 	"github.com/gofiber/swagger"
 	_ "ray-d-song.com/echo-rss/docs"
 )
+
+//go:embed dist/*
+var DistFiles embed.FS
 
 // @title Echo RSS API
 // @version 1.0
@@ -89,7 +94,8 @@ func main() {
 	translate.Post("/", controller.TranslateHdl)
 
 	app.Use("/*", filesystem.New(filesystem.Config{
-		Root: rice.MustFindBox("dist").HTTPBox(),
+		Root:       http.FS(DistFiles),
+		PathPrefix: "/dist",
 	}))
 	app.Listen(":11299")
 }

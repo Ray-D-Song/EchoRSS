@@ -21,7 +21,7 @@ jobs:
           
       - name: Pull latest image
         run: |
-          docker pull ghcr.io/${{ github.repository }}:dev
+          docker pull ghcr.io/ray-d-song/echo-rss:dev
           
       - name: Stop existing container
         run: |
@@ -34,4 +34,4 @@ jobs:
             --name echo-rss \
             -p 11299:11299 \
             -v $(pwd)/resources:/app/resources \
-            ghcr.io/${{ github.repository }}:dev
+            ghcr.io/ray-d-song/echo-rss:dev

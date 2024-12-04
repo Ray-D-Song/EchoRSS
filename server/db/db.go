@@ -1,14 +1,19 @@
 package db
 
 import (
+	"embed"
 	"fmt"
 	"os"
 	"path"
 
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx"
 	"ray-d-song.com/echo-rss/utils"
 )
+
+//go:embed migrations/*.sql
+var schemaFs embed.FS
 
 var Bind *sqlx.DB
 
@@ -27,12 +32,15 @@ func init() {
 }
 
 func Migrate() error {
-	m, err := migrate.New(
-		"file://./db/migrations",
+	d, err := iofs.New(schemaFs, "migrations")
+	if err != nil {
+		panic(err)
+	}
+	m, err := migrate.NewWithSourceInstance(
+		"iofs", d,
 		fmt.Sprintf("sqlite3://%s", "./resources/db.sqlite3"))
 	if err != nil {
-		fmt.Printf("create migrate failed: %v\n", err)
-		return err
+		panic(err)
 	}
 
 	if err := m.Up(); err != nil {
