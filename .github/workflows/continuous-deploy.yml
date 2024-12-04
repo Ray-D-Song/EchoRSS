@@ -12,31 +12,19 @@ jobs:
     runs-on: self-hosted
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: check user
-        run: echo $USER
-
-      - name: newgrp docker 
-        run: newgrp docker
 
       - name: Pull latest image
         run: |
-          docker pull ghcr.io/ray-d-song/echo-rss:dev
+          sudo docker pull ghcr.io/ray-d-song/echo-rss:dev
           
       - name: Stop existing container
         run: |
-          docker stop echo-rss || true
-          docker rm echo-rss || true
+          sudo docker stop echo-rss || true
+          sudo docker rm echo-rss || true
           
       - name: Start container
         run: |
-          docker run -d \
+          sudo docker run -d \
             --name echo-rss \
             -p 11299:11299 \
             -v $(pwd)/resources:/app/resources \
