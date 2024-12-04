@@ -27,5 +27,5 @@ jobs:
           sudo docker run -d \
             --name echorss \
             -p 11299:11299 \
-            -v ~/docker/echorss:/app/resources \
+            -v ~/docker/echorss:/resources \
             ghcr.io/ray-d-song/echorss:dev
