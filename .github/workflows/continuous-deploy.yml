@@ -15,17 +15,17 @@ jobs:
 
       - name: Pull latest image
         run: |
-          sudo docker pull ghcr.io/ray-d-song/echo-rss:dev
+          sudo docker pull ghcr.io/ray-d-song/echorss:dev
           
       - name: Stop existing container
         run: |
-          sudo docker stop echo-rss || true
-          sudo docker rm echo-rss || true
+          sudo docker stop echorss || true
+          sudo docker rm echorss || true
           
       - name: Start container
         run: |
           sudo docker run -d \
-            --name echo-rss \
+            --name echorss \
             -p 11299:11299 \
             -v $(pwd)/resources:/app/resources \
-            ghcr.io/ray-d-song/echo-rss:dev
+            ghcr.io/ray-d-song/echorss:dev
