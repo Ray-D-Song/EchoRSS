@@ -1,10 +1,6 @@
 package main
 
 import (
-	"embed"
-	"net/http"
-
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"ray-d-song.com/echo-rss/controller"
@@ -21,9 +17,6 @@ import (
 	"github.com/gofiber/swagger"
 	_ "ray-d-song.com/echo-rss/docs"
 )
-
-//go:embed dist/*
-var DistFiles embed.FS
 
 // @title Echo RSS API
 // @version 1.0
@@ -90,12 +83,7 @@ func main() {
 	tools := api.Group("/tools")
 	tools.Get("/fetch-remote-content", controller.FetchRemoteContent)
 
-	translate := api.Group("/translate")
-	translate.Post("/", controller.TranslateHdl)
+	utils.SetupStatic(app)
 
-	app.Use("/*", filesystem.New(filesystem.Config{
-		Root:       http.FS(DistFiles),
-		PathPrefix: "/dist",
-	}))
 	app.Listen(":11299")
 }

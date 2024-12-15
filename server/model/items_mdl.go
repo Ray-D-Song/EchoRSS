@@ -45,7 +45,7 @@ func (i *Item) Create() error {
 
 func GetItems(userID, feedID string) ([]Item, error) {
 	var items []Item
-	err := db.Bind.Select(&items, "SELECT * FROM items WHERE feed_id = ? AND user_id = ?", feedID, userID)
+	err := db.Bind.Select(&items, "SELECT * FROM items WHERE feed_id = ? AND user_id = ? ORDER BY datetime(pub_date) DESC", feedID, userID)
 	return items, err
 }
 

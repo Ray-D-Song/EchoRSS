@@ -5,7 +5,7 @@ import { Input } from './ui/input'
 import { Button } from './ui/button'
 
 interface UserConfig {
-  OPENAI_API_KEY: string
+  API_KEY: string
   API_ENDPOINT: string
   TARGET_LANGUAGE: string
 }
@@ -17,7 +17,7 @@ interface SettingDialogProps {
 
 function SettingDialog({ visible, onVisibleChange }: SettingDialogProps) {
   const [aiSetting, setAiSetting] = useState<UserConfig>({
-    OPENAI_API_KEY: '',
+    API_KEY: '',
     API_ENDPOINT: '',
     TARGET_LANGUAGE: ''
   })
@@ -31,7 +31,7 @@ function SettingDialog({ visible, onVisibleChange }: SettingDialogProps) {
       immediate: true,
       onSuccess: (data) => {
         setAiSetting({
-          OPENAI_API_KEY: data.OPENAI_API_KEY,
+          API_KEY: data.API_KEY,
           API_ENDPOINT: data.API_ENDPOINT,
           TARGET_LANGUAGE: data.TARGET_LANGUAGE
         })
@@ -62,10 +62,10 @@ function SettingDialog({ visible, onVisibleChange }: SettingDialogProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">OpenAI API Key</label>
             <Input
-              value={aiSetting.OPENAI_API_KEY}
+              value={aiSetting.API_KEY}
               onChange={(e) => setAiSetting(prev => ({
                 ...prev,
-                OPENAI_API_KEY: e.target.value
+                API_KEY: e.target.value
               }))}
               placeholder="sk-..."
             />

@@ -128,15 +128,15 @@ export function Sidebar({ selectedFeed, setSelectedFeed, feeds, fetchFeeds }: Si
                               <SidebarMenuSubButton
                                 isActive={selectedFeed?.id === feed.id}
                                 onClick={() => setSelectedFeed(feed)}
-                                className='cursor-pointer'
+                                className='cursor-pointer h-[2.5rem]'
                               >
-                                <div className='flex items-center'>
+                                <div className='flex items-center w-full'>
                                   {
-                                    feed.favicon ? <img src={`data:image/png;base64,${feed.favicon}`} alt="favicon" className='w-4 h-4 mr-2' /> : <Rss className="mr-2 h-4 w-4" />
+                                    feed.favicon ? <img src={`data:image/png;base64,${feed.favicon}`} alt="favicon" className='w-4 h-4 mr-2 flex-shrink-0' /> : <Rss className="mr-2 h-4 w-4 flex-shrink-0" />
                                   }
-                                  {feed.title}
+                                  <span className='line-clamp-2 break-all'>{feed.title}</span>
+                                  <span className='text-[12px] opacity-70 ml-auto'>{feed.unreadCount > 0 ? feed.unreadCount : ''}</span>
                                 </div>
-                                <span className='text-[12px] opacity-70'>{feed.unreadCount > 0 ? feed.unreadCount : ''}</span>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           ))}
